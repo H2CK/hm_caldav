@@ -1,0 +1,67 @@
+#!/bin/sh
+
+ADDONNAME=hm_caldav
+CONFIG_DIR=/usr/local/etc/config
+ADDON_DIR=/usr/local/addons/${ADDONNAME}
+RCD_DIR=${CONFIG_DIR}/rc.d
+WWW_DIR=${CONFIG_DIR}/addons/www/${ADDONNAME}
+
+# mount /usr/local if not already mounted
+mount | grep /usr/local 2>&1 >/dev/null
+if [ $? -eq 1 ]; then
+  mount /usr/local
+fi
+
+# create necessary directories
+mkdir -p ${ADDON_DIR}
+chmod 755 ${ADDON_DIR}
+mkdir -p ${RCD_DIR}
+chmod 755 ${RCD_DIR}
+
+# make sure to not overwrite
+# and existing config
+if [ -e ${ADDON_DIR}/etc/hm_caldav.conf ]; then
+  rm -f common/etc/hm_caldav.conf
+fi
+
+# copy addon (common stuff)
+cp -af common/* ${ADDON_DIR}/
+
+# copy addon (CCU dependent stuff)
+if [ "$1" = "" ]; then
+  cp -af ccu1/* ${ADDON_DIR}/
+elif [ "$1" = "CCU2" ]; then
+  cp -af ccu2/* ${ADDON_DIR}/
+elif [ "$1" == "HM-RASPBERRYMATIC" ]; then
+  cp -af ccurm/* ${ADDON_DIR}/
+fi
+
+# copy startup script
+cp -af rc.d/* ${RCD_DIR}
+
+# copy www stuff
+cp -af www ${ADDON_DIR}/
+if [ ! -e ${WWW_DIR} ]; then
+  ln -sf ${ADDON_DIR}/www ${WWW_DIR}
+fi
+
+# add menu entry
+touch /usr/local/etc/config/hm_addons.cfg
+${ADDON_DIR}/bin/update_addon hm_caldav ${ADDON_DIR}/etc/hm_caldav-addon.cfg
+
+# make sure to remove any hm_caldav cronjobs
+# since this is not required since 0.8+ anymore
+if [ -s /usr/local/crontabs/root ]; then
+  cat /usr/local/crontabs/root | grep -v "${ADDON_DIR}/run.sh" | sort | uniq >/tmp/crontab.$$
+  # we make sure we don't overwrite with an empty file
+  # because on the CCU2+RaspberryMatic it should never be empty!
+  if [ -s /tmp/crontab.$$ ]; then
+    mv /tmp/crontab.$$ /usr/local/crontabs/root
+  fi
+fi
+
+sync
+
+# exit with 0 to signal install succeeded and no reboot
+# is required
+exit 0

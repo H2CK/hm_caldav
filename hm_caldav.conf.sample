@@ -1,0 +1,45 @@
+# URL of the caldav calendar and login credentials
+HM_CALDAV_URL="http://localhost/calendar.ics"
+HM_CALDAV_USER=
+HM_CALDAV_SECRET=
+
+# IP address/hostname of CCU device (CCU1, CCU2, RaspberryMatic)
+HM_CCU_IP="homematic-ccu2"
+
+# Name of the CCU variable prefix used
+HM_CCU_CALDAV_VAR="Calendar"
+
+# download interval of calendar (in minutes) - new file will be fetched when las
+t download is older than x minutes
+HM_DOWNLOAD_INTERVAL="1440"
+
+# number of seconds to wait between iterations
+# (will run hm_caldav in an endless loop)
+HM_INTERVAL_TIME="60"
+
+# maximum number of iterations if running in interval mode
+# (default: 0=unlimited)
+HM_INTERVAL_MAX="0"
+
+#where the caldav calendar is cached
+HM_CALDAV_FILE="/tmp/hm_caldav.ics"
+
+# where to save the process ID in case hm_kostalpiko runs as
+# a daemon
+HM_DAEMON_PIDFILE="/tmp/hm_caldav.pid"
+
+# Processing logfile output name
+# (default: no output)
+HM_PROCESSLOG_FILE=
+
+# maximum number of lines the logfile should contain
+# (default: 500 lines)
+HM_PROCESSLOG_MAXLINES="500"
+
+# used names within variables
+HM_CCU_EVENT_ACTIVE="active"
+HM_CCU_EVENT_INACTIVE="inactive"
+
+# event names to variable name mapping - Syntax: [<VarName>]='<EventName>'
+HM_EVENT_VAR_MAPPING_LIST=([MBirthday]='Birthday Mum' [HomeOffice]='Home Office')
+

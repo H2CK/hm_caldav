@@ -1,0 +1,86 @@
+#!/bin/sh
+
+ADDONNAME=hm_caldav
+ADDONDIR=/usr/local/addons/${ADDONNAME}
+WWWDIR=/usr/local/etc/config/addons/www/${ADDONNAME}
+RCDDIR=/usr/local/etc/config/rc.d
+
+# function that starts hm_caldav as a daemon
+start() {
+  # default settings (will be overwritten by config file)
+  export HM_PROCESSLOG_FILE="/var/log/hm_caldav.log"
+  export CONFIG_FILE="${ADDONDIR}/etc/hm_caldav.conf"
+
+  # check for new+missing options in conf file and add them
+  # if necessary
+  if ! grep -q HM_CCU_REGAPORT ${ADDONDIR}/etc/hm_caldav.conf; then
+    echo "HM_CCU_REGAPORT=8183" >>${ADDONDIR}/etc/hm_caldav.conf
+  fi
+
+  # set path settings to let it search in the bin directory as well.
+  export PATH="${ADDONDIR}/bin:${PATH}"
+
+  # run hm_caldav in daemon mode
+  ${ADDONDIR}/bin/hm_caldav.sh start >/dev/null 2>&1
+}
+
+# function that stops/kills hm_caldav
+stop() {
+  # default settings (will be overwritten by config file)
+  export CONFIG_FILE="${ADDONDIR}/etc/hm_caldav.conf"
+
+  # set path settings to let it search in the bin directory as well.
+  export PATH="${ADDONDIR}/bin:${PATH}"
+
+  # stop/kill hm_caldav
+  ${ADDONDIR}/bin/hm_caldav.sh stop >/dev/null 2>&1
+}
+
+case "$1" in
+
+  ""|start)
+    start
+    ;;
+
+  stop)
+    stop
+    ;;
+
+  restart|reload)
+    stop
+    sleep 2
+    start
+    ;;
+
+  info)
+    echo "Info: <b>CalDav Integration Addon</b><br>"
+    echo "Info: (c) 2018 Thorsten Jagel<br>"
+    echo "Info: <a href='http://github.com/H2CK/hm_kostalpiko'>http://github.com/H2CK/hm_caldav</a>"
+    echo "Version: $(cat ${WWWDIR}/VERSION)"
+    echo "Name: hm_caldav"
+    echo "Operations: uninstall restart"
+    echo "Config-Url: /addons/${ADDONNAME}/"
+    echo "Update: /addons/${ADDONNAME}/update-check.cgi"
+    ;;
+
+  uninstall)
+    # make sure to stop hm_caldav
+    stop
+
+    # remove the addon button
+    ${ADDONDIR}/bin/update_addon hm_caldav
+
+    # remove the whole addon related stuff
+    rm -rf ${ADDONDIR}
+    rm -rf ${WWWDIR}
+    rm -f ${RCDDIR}/${ADDONNAME}
+    ;;
+
+  *)
+    echo "Usage: hm_caldav {start|stop|restart|info|uninstall}" >&2
+    exit 1
+    ;;
+
+esac
+
+exit $?

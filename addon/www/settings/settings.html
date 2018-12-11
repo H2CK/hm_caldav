@@ -1,0 +1,190 @@
+<html lang="de">
+<head>
+	<meta charset="ISO-8859-1">
+	<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="settings">
+  <meta name="author" content="dev@jagel.net">
+  <meta name="language" content="de, german">
+	<!-- Bootstrap core CSS -->
+	<link href="../public/css/bootstrap.min.css" rel="stylesheet">
+	<link href="../public/css/bootstrap-slider.min.css" rel="stylesheet">
+	<!-- Custom styles for this template -->
+	<link href="../public/css/custombootstrap.css" rel="stylesheet">
+	<link href="../public/css/custom.css" rel="stylesheet">
+  <title>HM-caldav Addon</title>
+</head>
+<body  style="zoom: 1; margin-top: 60px;"> 
+<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+        <span class="sr-only">Toggle navigation</span>
+         <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="../index.html"  target="_blank"><img src="../public/img/logo.png" alt=""> &nbsp;
+ &nbsp;</a>
+      </div>
+   <div class="collapse navbar-collapse">
+      <ul class="nav navbar-nav ">
+        <li><a href="../index.html">Über</a></li>
+        <li><a href="logoutput.cgi">Logfile</a></li>
+        <li class="active"><a href="settings.cgi">Konfiguration</a></li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li><a href="en.settings.cgi">English</a></li>
+      </ul>        
+     </div><!--/.nav-collapse -->
+  </div><!-- class="container" -->
+</div><!-- class="navbar ..." -->
+<div class="container center1 col-md-8" id="content"> 
+<legend>CalDav Integration - Konfiguration</legend>
+<div class="well well-s">
+
+<form class='form-horizontal' name='f_edit' id='f_edit'  action="settings.cgi" method="get">
+<fieldset>
+       
+<!-- Text input-->
+<div class="form-group">
+  <label class="col-md-3 control-label" for="HM_CALDAV_URL" id="HM_CALDAV_URL-Label">CalDav Url (Link zur ics Datei):</label>
+  <div class="col-md-4">
+  <input id="HM_CALDAV_URL" name="HM_CALDAV_URL" type="text" placeholder="z.B. 'piko'" class="form-control input-md" value="<%HM_CALDAV_URL%>">
+  <span class="help-block">Standardwert: 'http://localhost/calendar.ics'</span>
+  </div>
+</div>
+<!-- Text input-->
+<div class="form-group">
+  <label class="col-md-3 control-label" for="HM_CALDAV_USER" id="HM_PIKO_CALDAV-Label">CalDav Zugangsdaten:</label>
+  <div class="col-md-4">
+  <input id="HM_CALDAV_USER" name="HM_CALDAV_USER" type="text" placeholder="Nutzername" class="form-control input-md" value="<%HM_CALDAV_USER%>">
+  <span class="help-block">Standardwert: leer (kein Nutzername notwendig)</span>  
+  </div>
+  <div class="col-md-3">
+  <input id="HM_CALDAV_SECRET" name="HM_CALDAV_SECRET" type="password" placeholder="Passwort" class="form-control input-md" value="<%HM_CALDAV_SECRET%>">
+  <span class="help-block">Standardwert: leer (kein Passwort notwendig)</span>
+  </div>
+</div>
+<!-- Text input-->
+<div class="form-group">
+  <label class="col-md-3 control-label" for="HM_INTERVAL_TIME" id="HM_INTERVAL_TIME-Label">Automatische AusfŸhrung:</label>
+  <div class="col-md-8">
+    <input id="HM_INTERVAL_TIME" name="HM_INTERVAL_TIME" type="text" style="width:100%" data-slider-min="0" data-slider-max="1800" data-slider-step="5" data-slider-value="<%HM_INTERVAL_TIME%>" data-slider-enabled="true"/>
+    <span class="help-block">Standardwert: 15s (Ausführung alle 15 Sekunden)</span>
+  </div>
+</div>
+<div class="form-group">
+  <label class="col-md-3 control-label" for="HM_DOWNLOAD_INTERVAL" id="HM_DOWNLOAD_INTERVAL-Label">Aktualisierungsintervall der ics Datei:</label>  
+  <div class="col-md-8">
+    <input id="HM_DOWNLOAD_INTERVAL" name="HM_DOWNLOAD_INTERVAL" type="text" style="width:100%" data-slider-min="0" data-slider-max="65000" data-slider-step="5" data-slider-value="<%HM_DOWNLOAD_INTERVAL%>" data-slider-enabled="true"/>
+    <span class="help-block">Standardwert: 1440m (Aktualisierung alle 1440 Minuten)</span>
+  </div>
+</div>
+<!-- Separator-->
+<div class="form-group">
+  <label class="col-md-3 control-label"><u>CCU-Variableneinstellungen</u></label>
+</div>
+<!-- Text input-->
+<div class="form-group">
+  <label class="col-md-3 control-label" for="HM_CCU_CALDAV_VAR" id="HM_CCU_CALDAV_VAR-Label">Variablenprefix:</label>
+  <div class="col-md-4">
+    <input id="HM_CCU_CALDAV_VAR" name="HM_CCU_CALDAV_VAR" type="text" placeholder="z.B. 'Kalendar'" class="form-control input-md" value="<%HM_CCU_CALDAV_VAR%>">
+    <span class="help-block">Standardwert: 'Calendar'</span>
+  </div>
+</div>
+<div class="form-group">
+  <label class="col-md-3 control-label" for="HM_CCU_EVENT_ACTIVE" id="HM_CCU_EVENT_ACTIVE-Label">Wert der Variablen bei laufendem Event:</label>
+  <div class="col-md-4">
+    <input id="HM_CCU_EVENT_ACTIVE" name="HM_CCU_EVENT_ACTIVE" type="text" placeholder="z.B. 'aktiv'" class="form-control input-md" value="<%HM_CCU_EVENT_ACTIVE%>">
+    <span class="help-block">Standardwert: 'active'</span>
+  </div>
+</div>
+<div class="form-group">
+  <label class="col-md-3 control-label" for="HM_CCU_EVENT_INACTIVE" id="HM_CCU_EVENT_INACTIVE-Label">Wert der Variablen bei nicht laufendem Event:</label>
+  <div class="col-md-4">
+    <input id="HM_CCU_EVENT_INACTIVE" name="HM_CCU_EVENT_INACTIVE" type="text" placeholder="z.B. 'inaktiv'" class="form-control input-md" value="<%HM_CCU_EVENT_INACTIVE%>">
+    <span class="help-block">Standardwert: 'inactive'</span>
+  </div>
+</div>
+<!-- Text area-->
+<div class="form-group">
+  <label class="col-md-3 control-label" for="HM_EVENT_VAR_MAPPING_LIST" id="HM_EVENT_VAR_MAPPING_LIST-Label">Zuordnung Variablenname zu Eventname<br>(kann bash regex enthalten):</label>
+  <div class="col-md-8">
+    <textarea id="HM_EVENT_VAR_MAPPING_LIST" name="HM_EVENT_VAR_MAPPING_LIST" type="text" rows="4" placeholder="z.B. [MBirthday]='Birthday Mum' [HomeOffice]='Home Office'" class="form-control input-md"><%HM_EVENT_VAR_MAPPING_LIST%></textarea>
+    <span class="help-block">Standardwert: leer (keine zu überwachenden Events konfiguriert)</span>  
+  </div>
+</div>
+<!-- Button -->
+<div class="form-group">
+  <label class="control-label col-md-3" for="button1id"> </label>
+<div class="controls">
+    <button type="submit" id="save" name="command" value="save" class="btn btn-default btn-customedit custom1" >
+      <span class="glyphicon glyphicon-ok"></span>   Speichern</button>
+     <noscript> 
+    <button type="submit" id="defaults" name="command" value="defaults" class="btn btn-default btn-customdelete custom1">
+    </noscript>
+    <script type="text/javascript">document.write("<button type=\"button\" id=\"defaults\" name=\"defaults\"  value='defaults' class=\"btn btn-default btn-customdelete custom1\" onclick=\"check()\">");
+    </script> Werkseinstellungen</button>
+    <script type="text/javascript">document.write("<button type=\"reset\" id=\"reset\" name=\"reset\"  value='reset' class=\"btn btn-default btn-customdelete custom1\" onclick=\"\">  Abbrechen</button>");</script>
+</div> 
+</div>
+</fieldset>
+</form>
+
+</div><!--div class="well"--> 
+</div><!--div class="container"--> 
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+<script src="../public/js/bootstrap.min.js"></script>
+<script src="../public/js/bootstrap-slider.min.js"></script>
+<script type="text/javascript">
+
+$('#HM_INTERVAL_TIME').slider({
+  formatter: function(value) {
+    if(value == 0) {
+      return "Deaktiviert";
+    } else {
+      if(value >= 60) {
+        return "Alle " + new Date(value * 1000).toISOString().substr(14, 5) + " min";
+      } else {
+        return "Alle " + value + " s";
+      }
+    }
+  },
+  tooltip: 'always',
+  focus: true,
+  scale: 'logarithmic',
+});
+
+$('#HM_DOWNLOAD_INTERVAL').slider({
+  formatter: function(value) {
+    if(value == 0) {
+      return "Deaktiviert";
+    } else {
+      if(value >= 60) {
+        return "Alle " + new Date(value * 1000).toISOString().substr(14, 5) + " Stunden";
+      } else {
+        return "Alle " + value + " min";
+      }
+    }
+  },
+  tooltip: 'always',
+  focus: true,
+  scale: 'logarithmic',
+});
+
+function check () {
+  $('#HM_CALDAV_URL').val("");
+  $('#HM_CALDAV_USER').val("");
+  $('#HM_CALDAV_SECRET').val("");
+  $('#HM_INTERVAL_TIME').slider('setValue', 60);
+  $('#HM_CCU_CALDAV_VAR').val("");
+  $('#HM_DOWNLOAD_INTERVAL').slider('setValue', 1440);
+  $('#HM_CCU_EVENT_ACTIVE').val("");
+  $('#HM_CCU_EVENT_INACTIVE').val("");
+  $('#HM_EVENT_VAR_MAPPING_LIST').val("");
+}
+</script>
+</body>
+</html>
