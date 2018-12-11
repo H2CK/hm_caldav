@@ -19,6 +19,7 @@ cp -a ccurm tmp/
 # copy hm_caldav main script + config
 mkdir -p tmp/common/bin
 cp -a ../hm_caldav.sh tmp/common/bin/
+cp -a ../ics.awk tmp/common/bin/
 
 # generate archive
 cd tmp

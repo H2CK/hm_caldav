@@ -16,8 +16,8 @@
 # https://github.com/jens-maus/hm_pdetect
 #
 
-VERSION="0.1"
-VERSION_DATE="Dec 07 2018"
+VERSION="0.2"
+VERSION_DATE="Dec 11 2018"
 
 #####################################################
 # Main script starts here, don't modify from here on
@@ -73,8 +73,11 @@ HM_CCU_EVENT_INACTIVE=${HM_CCU_EVENT_INACTIVE:-"inactive"}
 # (default: 'hm_caldav.conf' in path where hm_caldav.sh script resists)
 CONFIG_FILE=${CONFIG_FILE:-"$(cd "${0%/*}"; pwd)/hm_caldav.conf"}
 
+AWK_FILE=${AWK_FILE:-"$(cd "${0%/*}"; pwd)/ics.awk"}
+
 # global return status variables
 RETURN_FAILURE=1
+RETURN_FAILURE_AWK=2
 RETURN_SUCCESS=0
 
 ###############################
@@ -96,7 +99,7 @@ if [[ ! -x $(which wget) ]]; then
 fi
 
 # iconv check
-if [[ ! -x $(which iconv) ]]; then
+if [[ ! -x $(which awk) ]]; then
   echo "ERROR: 'iconv' tool missing. Please install."
   exit ${RETURN_FAILURE}
 fi
@@ -186,6 +189,7 @@ if [[ ${#} -gt 0 ]]; then
         echo "Stopping hm_caldav (pid: $(cat ${HM_DAEMON_PIDFILE}))"
         kill $(cat ${HM_DAEMON_PIDFILE}) >/dev/null 2>&1
         rm -f ${HM_DAEMON_PIDFILE} >/dev/null 2>&1
+        rm -f ${HM_CALDAV_FILE} >/dev/null 2>&1
       fi
       exit 0
     ;;
@@ -364,6 +368,28 @@ function retrieveCalDavInfo()
       return ${RETURN_FAILURE}
     fi
     printf "%s" "${data}" > ${HM_CALDAV_FILE}
+    #Optimize file to relevant events using awk
+    re_names=""
+    first=true
+    for sysVariable in "${!HM_EVENT_VAR_MAPPING_LIST[@]}"; do
+      #echo -n " ${sysVariable}: "
+      #echo ${HM_EVENT_VAR_MAPPING_LIST[${sysVariable}]}
+      
+      createVariable "${HM_CCU_CALDAV_VAR}.${sysVariable}" bool "Event: ${HM_EVENT_VAR_MAPPING_LIST[${sysVariable}]}"
+      
+      if [ "$first" = true ]; then
+        first=false
+        re_names="${HM_EVENT_VAR_MAPPING_LIST[${sysVariable}]}"
+      else
+        re_names+="|${HM_EVENT_VAR_MAPPING_LIST[${sysVariable}]}"
+      fi
+    done
+    #echo "RegEx for Optimization: $re_names"
+    
+    awk -v NAME="${re_names}" -f ${AWK_FILE} ${HM_CALDAV_FILE} > /tmp/hm_caldav.tmp && rm -f ${HM_CALDAV_FILE} && mv /tmp/hm_caldav.tmp ${HM_CALDAV_FILE}
+    if [[ $? -ne 0 ]]; then
+      return ${RETURN_FAILURE_AWK}
+    fi
   else
     data=$(<${HM_CALDAV_FILE})  
   fi
@@ -376,10 +402,10 @@ function retrieveCalDavInfo()
   local re_event_start="^BEGIN\:VEVENT.*"
   local re_event_stop="^END\:VEVENT.*"
   local re_event_summary="^SUMMARY\:(.*)"
-  local re_event_start_date="^DTSTART;(VALUE=DATE|TZID=[a-zA-Z]+\/[a-zA-Z]+)\:([0-9]+)"
-  local re_event_start_time="^DTSTART;(VALUE=DATE|TZID=[a-zA-Z]+\/[a-zA-Z]+)\:([0-9]+)T([0-9]+)"
-  local re_event_stop_date="^DTEND;(VALUE=DATE|TZID=[a-zA-Z]+\/[a-zA-Z]+)\:([0-9]+)"
-  local re_event_stop_time="^DTEND;(VALUE=DATE|TZID=[a-zA-Z]+\/[a-zA-Z]+)\:([0-9]+)T([0-9]+)"
+  local re_event_start_date="^DTSTART\:([0-9]+)"
+  local re_event_start_time="^DTSTART\:([0-9]+)T([0-9]+)"
+  local re_event_stop_date="^DTEND\:([0-9]+)"
+  local re_event_stop_time="^DTEND\:([0-9]+)T([0-9]+)"
   
   local summary=""
   local start_date="20000101"
@@ -422,10 +448,8 @@ function retrieveCalDavInfo()
                           printf " until: %s" "$stop_date" 
                           printf " T: %s" "$stop_time"
                           echo "----"
-                          createVariable "${HM_CCU_CALDAV_VAR}.${sysVariable}" bool "Event: ${HM_EVENT_VAR_MAPPING_LIST[${sysVariable}]}"
                           setVariableState "${HM_CCU_CALDAV_VAR}.${sysVariable}" "true"
                         else
-                          createVariable "${HM_CCU_CALDAV_VAR}.${sysVariable}" bool "Event: ${HM_EVENT_VAR_MAPPING_LIST[${sysVariable}]}"
                           setVariableState "${HM_CCU_CALDAV_VAR}.${sysVariable}" "false"
                         fi
                       fi
@@ -444,16 +468,16 @@ function retrieveCalDavInfo()
                       summary="${BASH_REMATCH[1]}"
                     fi
                     if [[ $line =~ $re_event_start_date ]]; then
-                      start_date="${BASH_REMATCH[2]}"
+                      start_date="${BASH_REMATCH[1]}"
                     fi
                     if [[ $line =~ $re_event_start_time ]]; then
-                      start_time="${BASH_REMATCH[3]}"
+                      start_time="${BASH_REMATCH[2]}"
                     fi
                     if [[ $line =~ $re_event_stop_date ]]; then
-                      stop_date="${BASH_REMATCH[2]}"
+                      stop_date="${BASH_REMATCH[1]}"
                     fi
                     if [[ $line =~ $re_event_stop_time ]]; then
-                      stop_time="${BASH_REMATCH[3]}"
+                      stop_time="${BASH_REMATCH[2]}"
                     fi
                     continue
             fi
@@ -485,7 +509,7 @@ function run_caldav()
   
   # check that we were able to connect to at least one device
   if [[ ${i} -eq 0 ]]; then
-    echo "ERROR: couldn't connect to any specified CalDav URL"
+    echo "ERROR: couldn't connect or process data"
     return ${RETURN_FAILURE}
   fi
   
