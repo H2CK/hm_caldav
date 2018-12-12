@@ -16,8 +16,8 @@
 # https://github.com/jens-maus/hm_pdetect
 #
 
-VERSION="0.2"
-VERSION_DATE="Dec 11 2018"
+VERSION="0.3"
+VERSION_DATE="Dec 12 2018"
 
 #####################################################
 # Main script starts here, don't modify from here on
@@ -112,6 +112,8 @@ fi
 
 # declare associative arrays first (bash v4+ required)
 declare -A HM_EVENT_VAR_MAPPING_LIST     # VarName<>EventName tuple
+unset HM_EVENT_STATUS_LIST
+declare -A HM_EVENT_STATUS_LIST
 
 ###############################
 # lets check if config file was specified as a cmdline arg
@@ -310,8 +312,8 @@ function createVariable()
     if [[ -n ${result} && \
           ${valueName0} != "null" && ${valueName1} != "null" ]]; then
 
-       if [[ ${valueName0} != ${HM_CCU_EVENT_ACTIVE} || \
-             ${valueName1} != ${HM_CCU_EVENT_INACTIVE} ]]; then
+       if [[ ${valueName0} != ${HM_CCU_EVENT_INACTIVE} || \
+             ${valueName1} != ${HM_CCU_EVENT_ACTIVE} ]]; then
          echo -n "  Modifying CCU variable '${vaname}' (${vatype})... "
          postbody="string v='${vaname}';dom.GetObject(ID_SYSTEM_VARIABLES).Get(v).ValueName0('${HM_CCU_EVENT_INACTIVE}');dom.GetObject(ID_SYSTEM_VARIABLES).Get(v).ValueName1('${HM_CCU_EVENT_ACTIVE}')"
        fi
@@ -352,7 +354,7 @@ function retrieveCalDavInfo()
     uri="http://${ip}"
   fi
   
-  #check if locally available version of caldav (is it out of date)
+  #check if locally available version of caldav (is it out of date? if yes, delete the file)
   if [ -f ${HM_CALDAV_FILE} ]; then
     HM_CALDAV_DIR=${HM_CALDAV_FILE%/*}
     HM_CALDAV_F=${HM_CALDAV_FILE##*/}
@@ -361,22 +363,17 @@ function retrieveCalDavInfo()
   
   #check if locally available version of caldav is available
   if [ ! -f ${HM_CALDAV_FILE} ]; then
-    echo "Requesting caldav data ..."
-    # retrieve the current state information from the caldav server
+    echo "Requesting caldav data from server ..."
+    # retrieve the ics file from the caldav server
     data=$(wget -q -O - --max-redirect=0 --no-check-certificate --user="${user}" --password="${secret}" "${uri}")
     if [[ $? -ne 0 || -z ${data} ]]; then
       return ${RETURN_FAILURE}
     fi
     printf "%s" "${data}" > ${HM_CALDAV_FILE}
-    #Optimize file to relevant events using awk
+    #Optimize ics file to relevant events using awk - necessary for performance reasons
     re_names=""
     first=true
     for sysVariable in "${!HM_EVENT_VAR_MAPPING_LIST[@]}"; do
-      #echo -n " ${sysVariable}: "
-      #echo ${HM_EVENT_VAR_MAPPING_LIST[${sysVariable}]}
-      
-      createVariable "${HM_CCU_CALDAV_VAR}.${sysVariable}" bool "Event: ${HM_EVENT_VAR_MAPPING_LIST[${sysVariable}]}"
-      
       if [ "$first" = true ]; then
         first=false
         re_names="${HM_EVENT_VAR_MAPPING_LIST[${sysVariable}]}"
@@ -384,18 +381,23 @@ function retrieveCalDavInfo()
         re_names+="|${HM_EVENT_VAR_MAPPING_LIST[${sysVariable}]}"
       fi
     done
-    #echo "RegEx for Optimization: $re_names"
     
     awk -v NAME="${re_names}" -f ${AWK_FILE} ${HM_CALDAV_FILE} > /tmp/hm_caldav.tmp && rm -f ${HM_CALDAV_FILE} && mv /tmp/hm_caldav.tmp ${HM_CALDAV_FILE}
     if [[ $? -ne 0 ]]; then
       return ${RETURN_FAILURE_AWK}
     fi
-  else
-    data=$(<${HM_CALDAV_FILE})  
   fi
-
+  
+  # read exiting file
+  data=$(<${HM_CALDAV_FILE})  
   #echo "CalDav data:"
   #printf "%s\n" "${data}"
+  
+  # initialize associative array
+  for sysVariable in "${!HM_EVENT_VAR_MAPPING_LIST[@]}"; do
+    createVariable "${HM_CCU_CALDAV_VAR}.${sysVariable}" bool "Event: ${HM_EVENT_VAR_MAPPING_LIST[${sysVariable}]}"
+    HM_EVENT_STATUS_LIST[$sysVariable]="inactive"
+  done
   
   # analyse caldav
   STARTFLAG="false"
@@ -417,43 +419,28 @@ function retrieveCalDavInfo()
   do
    if [ $STARTFLAG == "true" ]; then
             if [[ $line =~ $re_event_stop ]]; then
-                    #printf "Event: %s\n" "$summary"
-                    #printf "from: %s" "$start_date" 
-                    #printf " T: %s" "$start_time"
-                    #printf " until: %s" "$stop_date" 
-                    #printf " T: %s" "$stop_time"
-                    #echo "----"
-                    
-                    #check if event is in the relevant list
+                    #find variable name for event summary
+                    curVariable=""
                     for sysVariable in "${!HM_EVENT_VAR_MAPPING_LIST[@]}"; do
-                      #echo -n " ${sysVariable}: "
-                      #echo ${HM_EVENT_VAR_MAPPING_LIST[${sysVariable}]}
                       if [[ $summary =~ ${HM_EVENT_VAR_MAPPING_LIST[${sysVariable}]} ]]; then
-                        #echo "Event is in monitoring list"
-                        #printf "Event: %s\n" "$summary"
-                        #printf "from: %s" "$start_date" 
-                        #printf " T: %s" "$start_time"
-                        #printf " until: %s" "$stop_date" 
-                        #printf " T: %s" "$stop_time"
-                        #echo "----"
-                        
-                        #check if event matters at this time
-                        curr_datetime="$(date +'+%Y%m%d%H%M%S')"
-                        start_datetime="$start_date$start_time"
-                        stop_datetime="$stop_date$stop_time"
-                        if [ $curr_datetime -ge $start_datetime ] && [ $stop_datetime -ge $curr_datetime ]; then
-                          printf "Active Event in monitoring list: %s\n" "$summary"
-                          printf "from: %s" "$start_date" 
-                          printf " T: %s" "$start_time"
-                          printf " until: %s" "$stop_date" 
-                          printf " T: %s" "$stop_time"
-                          echo "----"
-                          setVariableState "${HM_CCU_CALDAV_VAR}.${sysVariable}" "true"
-                        else
-                          setVariableState "${HM_CCU_CALDAV_VAR}.${sysVariable}" "false"
-                        fi
+                        curVariable=$sysVariable
+                        break
                       fi
                     done
+                    
+                    #check if event matters at this time
+                    curr_datetime="$(date +'+%Y%m%d%H%M%S')"
+                    start_datetime="$start_date$start_time"
+                    stop_datetime="$stop_date$stop_time"
+                    if [ $curr_datetime -ge $start_datetime ] && [ $stop_datetime -ge $curr_datetime ]; then
+                      printf "Ongoning event: %s" "$summary"
+                      printf " from: %s" "$start_date" 
+                      printf " T: %s" "$start_time"
+                      printf " until: %s" "$stop_date" 
+                      printf " T: %s\n" "$stop_time"
+                      
+                      HM_EVENT_STATUS_LIST[$curVariable]="active"
+                    fi
                     
                     # Reset parameters for further scan
                     STARTFLAG="false"
@@ -487,6 +474,17 @@ function retrieveCalDavInfo()
     fi
   done <<<"$data"
   
+  # set CCU system variables based on associative array
+  for sysVariable in "${!HM_EVENT_STATUS_LIST[@]}"; do
+    #echo -n "$sysVariable:"
+    #echo "${HM_EVENT_STATUS_LIST[${sysVariable}]}"
+    if [ "${HM_EVENT_STATUS_LIST[${sysVariable}]}" = "active" ]; then
+      setVariableState "${HM_CCU_CALDAV_VAR}.${sysVariable}" "true"
+    else
+      setVariableState "${HM_CCU_CALDAV_VAR}.${sysVariable}" "false"
+    fi
+  done
+  
   echo "Finished processing."
   
   return ${RETURN_SUCCESS}
@@ -497,7 +495,7 @@ function run_caldav()
   # output time/date of execution
   echo "== $(date) ==================================="
 
-  echo -n "Querying CalDav:"
+  echo -n "Processing CalDav:"
   i=0
   for ip in ${HM_CALDAV_URL[@]}; do
     echo " ${ip}"
