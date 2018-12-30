@@ -10,8 +10,7 @@
 #
 # Copyright (C) 2018 Thorsten Jagel <dev@jagel.net>
 #
-# This script is based on similar functionality and combines the functionality of
-# these projects into a single script:
+# This script is based on similar functionality:
 #
 # https://github.com/jens-maus/hm_pdetect
 #
