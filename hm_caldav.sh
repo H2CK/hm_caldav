@@ -357,7 +357,7 @@ function retrieveCalDavInfo()
   if [ -f ${HM_CALDAV_FILE} ]; then
     HM_CALDAV_DIR=${HM_CALDAV_FILE%/*}
     HM_CALDAV_F=${HM_CALDAV_FILE##*/}
-    find ${HM_CALDAV_DIR} -maxdepth 1 -name ${HM_CALDAV_F} -type f -mmin +${HM_DOWNLOAD_INTERVAL} -delete
+    find ${HM_CALDAV_DIR} -maxdepth 1 -name ${HM_CALDAV_F} -type f -mmin +${HM_DOWNLOAD_INTERVAL} -exec rm {} \;
   fi
   
   #check if locally available version of caldav is available
