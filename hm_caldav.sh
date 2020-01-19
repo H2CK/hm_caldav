@@ -8,15 +8,15 @@
 # The script will set several system variables for the current status of the
 # meetings in the calendar. The events are selected by the summary.
 #
-# Copyright (C) 2018 Thorsten Jagel <dev@jagel.net>
+# Copyright (C) 2018-2020 Thorsten Jagel <dev@jagel.net>
 #
 # This script is based on similar functionality:
 #
 # https://github.com/jens-maus/hm_pdetect
 #
 
-VERSION="0.4"
-VERSION_DATE="Jan 10 2019"
+VERSION="0.5"
+VERSION_DATE="Jan 19 2020"
 
 #####################################################
 # Main script starts here, don't modify from here on
@@ -520,7 +520,7 @@ function run_caldav()
 # main processing starts here
 #
 echo "hm_caldav ${VERSION} - a HomeMatic script to query current events from a caldav server"
-echo "(${VERSION_DATE}) Copyright (C) 2018 Thorsten Jagel <dev@jagel.net>"
+echo "(${VERSION_DATE}) Copyright (C) 2018-2020 Thorsten Jagel <dev@jagel.net>"
 echo
 
 # lets enter an endless loop to implement a

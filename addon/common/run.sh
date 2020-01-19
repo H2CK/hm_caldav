@@ -44,4 +44,5 @@ fi
 
 # execute hm_caldav in non-daemon mode
 export PATH="${ADDON_DIR}/bin:${PATH}"
+export LD_LIBRARY_PATH="${ADDON_DIR}/bin:${LD_LIBRARY_PATH}"
 ${ADDON_DIR}/bin/hm_caldav.sh >/dev/null 2>&1
