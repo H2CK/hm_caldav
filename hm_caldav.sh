@@ -395,7 +395,11 @@ function retrieveCalDavInfo()
   # initialize associative array
   for sysVariable in "${!HM_EVENT_VAR_MAPPING_LIST[@]}"; do
     createVariable "${HM_CCU_CALDAV_VAR}.${sysVariable}" bool "Event: ${HM_EVENT_VAR_MAPPING_LIST[${sysVariable}]}"
+    createVariable "${HM_CCU_CALDAV_VAR}.${sysVariable}-TODAY" bool "Event: ${HM_EVENT_VAR_MAPPING_LIST[${sysVariable}]}-TODAY"
+    createVariable "${HM_CCU_CALDAV_VAR}.${sysVariable}-TOMORROW" bool "Event: ${HM_EVENT_VAR_MAPPING_LIST[${sysVariable}]}-TOMORROW"
     HM_EVENT_STATUS_LIST[$sysVariable]="inactive"
+    HM_EVENT_STATUS_LIST["$sysVariable-TODAY"]="inactive"
+    HM_EVENT_STATUS_LIST["$sysVariable-TOMORROW"]="inactive"
   done
   
   # analyse caldav
@@ -439,6 +443,30 @@ function retrieveCalDavInfo()
                       printf " T: %s\n" "$stop_time"
                       
                       HM_EVENT_STATUS_LIST[$curVariable]="active"
+                    fi
+
+                    #check if event is active today
+                    today_date="$(date +'+%Y%m%d')"
+                    if [ $stop_date -ge $tomorrow_date ] && [ $start_date -le $tomorrow_date ]; then
+                      printf "Today event: %s" "$summary"
+                      printf " from: %s" "$start_date" 
+                      printf " T: %s" "$start_time"
+                      printf " until: %s" "$stop_date" 
+                      printf " T: %s\n" "$stop_time"
+                      
+                      HM_EVENT_STATUS_LIST["$curVariable-TODAY"]="active"
+                    fi
+
+                    #check if event is active tomorrow
+                    tomorrow_date="$(date -v+1d +'+%Y%m%d')"
+                    if [ $stop_date -ge $tomorrow_date ] && [ $start_date -le $tomorrow_date ]; then
+                      printf "Tomorrow event: %s" "$summary"
+                      printf " from: %s" "$start_date" 
+                      printf " T: %s" "$start_time"
+                      printf " until: %s" "$stop_date" 
+                      printf " T: %s\n" "$stop_time"
+                      
+                      HM_EVENT_STATUS_LIST["$curVariable-TOMORROW"]="active"
                     fi
                     
                     # Reset parameters for further scan

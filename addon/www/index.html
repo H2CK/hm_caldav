@@ -7,7 +7,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="settings">
-  <meta name="author" content="dev@jagel.net.de">
+  <meta name="author" content="dev@jagel.net">
   <meta name="language" content="de, german">
   <!-- Bootstrap core CSS -->
   <link href="public/css/bootstrap.min.css" rel="stylesheet">
@@ -31,7 +31,7 @@
       </div>
    <div class="collapse navbar-collapse">
       <ul class="nav navbar-nav ">
-        <li class="active"><a href="index.html">�ber</a></li>
+        <li class="active"><a href="index.html">Über</a></li>
         <li><a href="settings/logoutput.cgi">Logfile</a></li>
         <li><a href="settings/settings.cgi">Konfiguration</a></li>
       </ul>
@@ -43,14 +43,14 @@
 </div><!-- class="navbar ..." -->
 
 <div class="container center1 col-md-8" id="content"> 
-<legend>CalDav Integration f�r HomeMatic - hm_caldav</legend>
+<legend>CalDav Integration für HomeMatic - hm_caldav</legend>
 <div class="well well-s">
 <b>Allgemeines</b>
 <p>
-Dieses CCU-Addon liest eine ics Datei von der angegebenen URL. In der Konfiguration kann angegeben werden, welche Termine darin �ber welche Systemvariable in der CCU bekannt gemacht werden. L�uft ein konfigurierter Termin so wird dies im Status der Systemvariablen dargestellt.
+Dieses CCU-Addon liest eine ics Datei von der angegebenen URL. In der Konfiguration kann angegeben werden, welche Termine darin über welche Systemvariable in der CCU bekannt gemacht werden. Läuft ein konfigurierter Termin so wird dies im Status der Systemvariablen dargestellt.
 </p>
 
-<b>Unterst�tzte CCU Platformen</b>
+<b>Unterstützte CCU Platformen</b>
 <ul>
   <li><a href="https://www.eq-3.de/produkte/homematic/zentralen-und-gateways/smart-home-zentrale-ccu3.html">HomeMatic CCU3</a> / <a href="https://raspberrymatic.de/">RaspberryMatic</a></li>
   <li><a href="https://www.eq-3.de/produkt-detail-zentralen-und-gateways/items/homematic-zentrale-ccu-2.html">HomeMatic CCU2</a></li>
@@ -60,13 +60,13 @@ Dieses CCU-Addon liest eine ics Datei von der angegebenen URL. In der Konfigurat
 <b>Installation als CCU-Addon</b>
 <ol>
   <li>Download des aktuellen Addon-Releases von <a href="https://github.com/H2CK/hm_caldav/releases">Github</a></li>
-  <li>Installation des Addon-Paketes (<code>hm_caldav-X.X.tar.gz</code>) mittels WebUI Oberfl�che der CCU</li>
-  <li>Konfiguration des Addons �ber WebUI zug�ngliche <a href="settings/settings.cgi">Konfigurationswebseite</a></li>
+  <li>Installation des Addon-Paketes (<code>hm_caldav-X.X.tar.gz</code>) mittels WebUI Oberfläche der CCU</li>
+  <li>Konfiguration des Addons über WebUI zugüngliche <a href="settings/settings.cgi">Konfigurationswebseite</a></li>
 </ol>
 
 <b>Manueller CUxD SystemExec Aufruf</b>
 <p>
-Zus�tzlich zum automatischen, intervallbasierten Aufrufen von hm_caldav ist es auch m�glich mittels CUxD-basierter SystemExec Aufrufe (<a href="http://www.cuxd.de/">www.cuxd.de</a>) in der CCU-basierten Programmierumgebung eine Ausf�hrung von hm_caldav zu bestimmten Zeiten durchf�hren zu lassen. Hierzu kann man in HomeMatic-Programmen die folgende beispielhafte Anweisung hinzuf�gen:<br>
+Zusätzlich zum automatischen, intervallbasierten Aufrufen von hm_caldav ist es auch möglich mittels CUxD-basierter SystemExec Aufrufe (<a href="http://www.cuxd.de/">www.cuxd.de</a>) in der CCU-basierten Programmierumgebung eine Ausführung von hm_caldav zu bestimmten Zeiten durchführen zu lassen. Hierzu kann man in HomeMatic-Programmen die folgende beispielhafte Anweisung hinzufügen:<br>
 
 <p>
 <code>
@@ -74,7 +74,7 @@ dom.GetObject("CUxD.CUX2801001:1.CMD_EXEC").State("/usr/local/addons/hm_caldav/r
 </code>
 </p>
 
-Hierbei gilt zu beachten, dass bei &lt;iterations&gt; und &lt;waittime&gt; jeweils die Anzahl der Iterationen und eine gew�nschte Wartezeit zwischen den Iterationen hinzugef�gt werden kann. Ein Beispiel eines solchen Aufrufen kann sein:<br><br>
+Hierbei gilt zu beachten, dass bei &lt;iterations&gt; und &lt;waittime&gt; jeweils die Anzahl der Iterationen und eine gewünschte Wartezeit zwischen den Iterationen hinzugefügt werden kann. Ein Beispiel eines solchen Aufrufen kann sein:<br><br>
 
 <p>
 <code>
@@ -82,7 +82,7 @@ dom.GetObject("CUxD.CUX2801001:1.CMD_EXEC").State("/usr/local/addons/hm_caldav/r
 </code>
 </p>
 
-Dies wird bei Ausf�hrung dieser Anweisung dann hm_caldav 5-mal hintereinander aufrufen mit jeweils 2 Sekunden Pause zwischen den Aufrufen.
+Dies wird bei Ausführung dieser Anweisung dann hm_caldav 5-mal hintereinander aufrufen mit jeweils 2 Sekunden Pause zwischen den Aufrufen.
 </p>
 
 <b>Support</b>
@@ -94,7 +94,7 @@ Bei Problemen/Bugs oder Ideen zur Weiterentwicklung bitte unter dem Github-Proje
 <p>Die Nutzung und Entwicklung des Addons unterliegt der Version 3 der LGPL Open Source Lizenz.</p>
 
 <b>Authoren</b>
-<p>Copyright (c) 2018-2020 Thorsten Jagel &lt;dev@jagel.net&gt;</p>
+<p>Copyright (c) 2018-2021 Thorsten Jagel &lt;dev@jagel.net&gt;</p>
 
 <b>Hinweis</b>
 <p>

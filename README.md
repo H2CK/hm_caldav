@@ -8,6 +8,7 @@
 
 
 This CCU-Addon reads an ics file from the given url. In the configuration you can define which meeting are represented as system variables within the HomeMatic CCU environment. If a defined meeting is running this is represented by the value of the corresponding system variable.
+Additionally there are variables -TODAY and -TOMORROW which are set to active if a meeting is planned today or tommorow, even if the meeting only last for e.g. an hour.
 
 Important: This addon is based on wget. On your CCU there might be an outdated version of wget, which might not support TLS 1.1 or TLS 1.2.
 
@@ -70,7 +71,7 @@ In case of problems/bugs or if you have any feature requests please feel free to
 The use and development of this addon is based on version 3 of the LGPL open source license.
 
 ## Authors
-Copyright (c) 2018 Thorsten Jagel &lt;dev@jagel.net&gt;
+Copyright (c) 2018-2021 Thorsten Jagel &lt;dev@jagel.net&gt;
 
 ## Notice
 This Addon uses KnowHow that was developed throughout the following projects:
