@@ -8,15 +8,15 @@
 # The script will set several system variables for the current status of the
 # meetings in the calendar. The events are selected by the summary.
 #
-# Copyright (C) 2018-2020 Thorsten Jagel <dev@jagel.net>
+# Copyright (C) 2018-2021 Thorsten Jagel <dev@jagel.net>
 #
 # This script is based on similar functionality:
 #
 # https://github.com/jens-maus/hm_pdetect
 #
 
-VERSION="0.5"
-VERSION_DATE="Jan 19 2020"
+VERSION="0.7"
+VERSION_DATE="Jan 19 2021"
 
 #####################################################
 # Main script starts here, don't modify from here on
@@ -398,8 +398,10 @@ function retrieveCalDavInfo()
     createVariable "${HM_CCU_CALDAV_VAR}.${sysVariable}-TODAY" bool "Event: ${HM_EVENT_VAR_MAPPING_LIST[${sysVariable}]}-TODAY"
     createVariable "${HM_CCU_CALDAV_VAR}.${sysVariable}-TOMORROW" bool "Event: ${HM_EVENT_VAR_MAPPING_LIST[${sysVariable}]}-TOMORROW"
     HM_EVENT_STATUS_LIST[$sysVariable]="inactive"
-    HM_EVENT_STATUS_LIST["$sysVariable-TODAY"]="inactive"
-    HM_EVENT_STATUS_LIST["$sysVariable-TOMORROW"]="inactive"
+    todayCurVariable="$curVariable-TODAY"
+    HM_EVENT_STATUS_LIST[$todayCurVariable]="inactive"
+    tomorrowCurVariable="$curVariable-TOMORROW"
+    HM_EVENT_STATUS_LIST[$tomorrowCurVariable]="inactive"
   done
   
   # analyse caldav
@@ -446,27 +448,29 @@ function retrieveCalDavInfo()
                     fi
 
                     #check if event is active today
-                    today_date="$(date +'+%Y%m%d')"
-                    if [ $stop_date -ge $tomorrow_date ] && [ $start_date -le $tomorrow_date ]; then
+                    today_date="$(date '+%Y%m%d')"
+                    if [ $today_date -ge $start_date ] && [ $stop_date -ge $today_date ]; then
                       printf "Today event: %s" "$summary"
                       printf " from: %s" "$start_date" 
                       printf " T: %s" "$start_time"
                       printf " until: %s" "$stop_date" 
                       printf " T: %s\n" "$stop_time"
                       
-                      HM_EVENT_STATUS_LIST["$curVariable-TODAY"]="active"
+                      todayCurVariable="$curVariable-TODAY"
+                      HM_EVENT_STATUS_LIST[$todayCurVariable]="active"
                     fi
 
                     #check if event is active tomorrow
-                    tomorrow_date="$(date -v+1d +'+%Y%m%d')"
-                    if [ $stop_date -ge $tomorrow_date ] && [ $start_date -le $tomorrow_date ]; then
+                    tomorrow_date="$(date -v+1d '+%Y%m%d')"
+                    if [ $tomorrow_date -ge $start_date ] && [ $stop_date -ge $tomorrow_date ]; then
                       printf "Tomorrow event: %s" "$summary"
                       printf " from: %s" "$start_date" 
                       printf " T: %s" "$start_time"
                       printf " until: %s" "$stop_date" 
                       printf " T: %s\n" "$stop_time"
                       
-                      HM_EVENT_STATUS_LIST["$curVariable-TOMORROW"]="active"
+                      tomorrowCurVariable="$curVariable-TOMORROW"
+                      HM_EVENT_STATUS_LIST[$tomorrowCurVariable]="active"
                     fi
                     
                     # Reset parameters for further scan
@@ -548,7 +552,7 @@ function run_caldav()
 # main processing starts here
 #
 echo "hm_caldav ${VERSION} - a HomeMatic script to query current events from a caldav server"
-echo "(${VERSION_DATE}) Copyright (C) 2018-2020 Thorsten Jagel <dev@jagel.net>"
+echo "(${VERSION_DATE}) Copyright (C) 2018-2021 Thorsten Jagel <dev@jagel.net>"
 echo
 
 # lets enter an endless loop to implement a
