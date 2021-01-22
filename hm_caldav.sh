@@ -15,8 +15,8 @@
 # https://github.com/jens-maus/hm_pdetect
 #
 
-VERSION="0.7"
-VERSION_DATE="Jan 19 2021"
+VERSION="0.8"
+VERSION_DATE="Jan 22 2021"
 
 #####################################################
 # Main script starts here, don't modify from here on
@@ -219,7 +219,7 @@ function getVariableState()
 }
 
 # function setting the state of a homematic variable in case it
-# it different to the current state and the variable exists
+# is different to the current state and the variable exists
 function setVariableState()
 {
   local name="$1"
@@ -229,11 +229,13 @@ function setVariableState()
   # query the current state and if the variable exists or not
   curstate=$(getVariableState "${name}")
   if [[ ${curstate} == "null" ]]; then
+    echo "ERROR: Variable '${name}' can not be read from CCU."
     return ${RETURN_FAILURE}
   fi
 
   # only continue if the current state is different to the new state
   if [[ ${curstate} == ${newstate//\'} ]]; then
+    echo "  No update of CCU variable '${name}' necessary, since state is already in target state '${newstate//\'}'."
     return ${RETURN_SUCCESS}
   fi
 
@@ -461,7 +463,7 @@ function retrieveCalDavInfo()
                     fi
 
                     #check if event is active tomorrow
-                    tomorrow_date="$(date -v+1d '+%Y%m%d')"
+                    tomorrow_date="$(date -D %s -d $(($(date +%s) + 86400)) '+%Y%m%d')"
                     if [ $tomorrow_date -ge $start_date ] && [ $stop_date -ge $tomorrow_date ]; then
                       printf "Tomorrow event: %s" "$summary"
                       printf " from: %s" "$start_date" 
