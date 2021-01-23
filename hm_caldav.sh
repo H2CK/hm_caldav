@@ -15,8 +15,8 @@
 # https://github.com/jens-maus/hm_pdetect
 #
 
-VERSION="0.8"
-VERSION_DATE="Jan 22 2021"
+VERSION="0.9"
+VERSION_DATE="Jan 24 2021"
 
 #####################################################
 # Main script starts here, don't modify from here on
@@ -400,9 +400,9 @@ function retrieveCalDavInfo()
     createVariable "${HM_CCU_CALDAV_VAR}.${sysVariable}-TODAY" bool "Event: ${HM_EVENT_VAR_MAPPING_LIST[${sysVariable}]}-TODAY"
     createVariable "${HM_CCU_CALDAV_VAR}.${sysVariable}-TOMORROW" bool "Event: ${HM_EVENT_VAR_MAPPING_LIST[${sysVariable}]}-TOMORROW"
     HM_EVENT_STATUS_LIST[$sysVariable]="inactive"
-    todayCurVariable="$curVariable-TODAY"
+    todayCurVariable="$sysVariable-TODAY"
     HM_EVENT_STATUS_LIST[$todayCurVariable]="inactive"
-    tomorrowCurVariable="$curVariable-TOMORROW"
+    tomorrowCurVariable="$sysVariable-TOMORROW"
     HM_EVENT_STATUS_LIST[$tomorrowCurVariable]="inactive"
   done
   
